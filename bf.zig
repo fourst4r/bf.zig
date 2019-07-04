@@ -5,12 +5,12 @@ const ArrayList = std.ArrayList;
 
 const Bf = struct {
     const TAPE_LEN = 30000;
-    
+
     stdin: File,
     stdout: File,
 
     pc: usize,
-    
+
     tape: [TAPE_LEN]u8,
     ptr: usize, // undefined behaviour if ptr is outside the bounds of tape
 
@@ -18,7 +18,7 @@ const Bf = struct {
     braces: [TAPE_LEN]usize,
 
     pub fn init(allocator: *std.mem.Allocator) Bf {
-        return Bf {
+        return Bf{
             .pc = 0,
             .tape = [_]u8{0} ** TAPE_LEN,
             .ptr = 0,
@@ -33,7 +33,7 @@ const Bf = struct {
         self.stack.deinit();
     }
 
-    pub fn run(self: *Bf, rom: []u8) !void {
+    pub fn run(self: *Bf, rom: []const u8) !void {
         self.pc = 0;
 
         // match the braces first
@@ -41,13 +41,11 @@ const Bf = struct {
             const instruction = rom[self.pc];
             if (instruction == '[') {
                 try self.stack.append(self.pc);
-            } 
-            else if (instruction == ']') {
+            } else if (instruction == ']') {
                 if (self.stack.popOrNull()) |open| {
                     self.braces[self.pc] = open;
                     self.braces[open] = self.pc;
-                } 
-                else {
+                } else {
                     std.debug.warn("unmatched ']' at byte {}", self.pc);
                     return;
                 }
